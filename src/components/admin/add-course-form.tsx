@@ -38,7 +38,7 @@ export function AddCourseForm() {
   });
 
   const onSubmit = async (data: CourseFormValues) => {
-    form.formState.isSubmitting = true; // Manually set submitting state
+    // form.formState.isSubmitting is managed by react-hook-form automatically
     try {
       const result = await addNewCourseAction(data);
 
@@ -74,11 +74,8 @@ export function AddCourseForm() {
         description: error.message || "An unexpected error occurred while submitting the form.",
         variant: "destructive",
       });
-    } finally {
-       form.formState.isSubmitting = false; // Manually reset submitting state
-       // Trigger a re-render if using react-hook-form's own isSubmitting state isn't enough
-       form.trigger(); 
-    }
+    } 
+    // react-hook-form automatically sets form.formState.isSubmitting to false after onSubmit resolves/rejects
   };
 
   return (
@@ -278,3 +275,4 @@ export function AddCourseForm() {
     </Form>
   );
 }
+
