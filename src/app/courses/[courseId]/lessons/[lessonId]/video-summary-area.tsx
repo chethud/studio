@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, type ChangeEvent } from 'react';
+import { useState } from 'react';
 import { summarizeVideo, type SummarizeVideoInput, type SummarizeVideoOutput } from '@/ai/flows/summarize-video';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, FileWarning, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
 interface VideoSummaryAreaProps {
-  videoUrl: string; // The actual GCS or remote URL of the video
+  videoUrl: string;
   courseId: string;
   lessonId: string;
 }
@@ -20,32 +18,13 @@ export function VideoSummaryArea({ videoUrl, courseId, lessonId }: VideoSummaryA
   const [summary, setSummary] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [videoDataUri, setVideoDataUri] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
   
   const [completedLessons, setCompletedLessons] = useLocalStorage<string[]>(`completedLessons_${courseId}`, []);
   const isCompleted = completedLessons.includes(lessonId);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setVideoDataUri(e.target?.result as string);
-        setSummary(null); // Clear previous summary
-        setError(null); // Clear previous error
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setVideoDataUri(null);
-      setFileName(null);
-    }
-  };
-
   const handleGenerateSummary = async () => {
-    if (!videoDataUri) {
-      setError('Please select a video file first to generate a summary. The AI requires a data URI.');
+    if (!videoUrl) {
+      setError('No video URL available for this lesson to generate a summary.');
       return;
     }
 
@@ -54,12 +33,12 @@ export function VideoSummaryArea({ videoUrl, courseId, lessonId }: VideoSummaryA
     setSummary(null);
 
     try {
-      const input: SummarizeVideoInput = { videoDataUri };
+      const input: SummarizeVideoInput = { videoUrl };
       const result: SummarizeVideoOutput = await summarizeVideo(input);
       setSummary(result.summary);
     } catch (e: any) {
       console.error('Error generating summary:', e);
-      setError(e.message || 'Failed to generate summary.');
+      setError(e.message || 'Failed to generate summary. The AI model might not be able to process the video from this URL directly, or the video format may not be supported.');
     } finally {
       setIsLoading(false);
     }
@@ -73,28 +52,27 @@ export function VideoSummaryArea({ videoUrl, courseId, lessonId }: VideoSummaryA
 
   return (
     <div className="space-y-6 mt-4">
-      <div>
-        <p className="text-sm text-muted-foreground mb-2">
-          The current AI flow for summarization requires a video file to be uploaded from your device to generate a data URI. 
-          This is a temporary measure for demonstration. For large videos hosted remotely (like the one in the player), this method is not efficient.
-        </p>
-        <div className="space-y-2 max-w-md">
-          <Label htmlFor="video-file-for-summary">Upload video for summary (optional)</Label>
-          <Input id="video-file-for-summary" type="file" accept="video/*" onChange={handleFileChange} className="file:text-primary file:font-medium"/>
-          {fileName && <p className="text-xs text-muted-foreground">Selected: {fileName}</p>}
-        </div>
-      </div>
-
-      <Button onClick={handleGenerateSummary} disabled={isLoading || !videoDataUri} className="w-full sm:w-auto">
+      <Button onClick={handleGenerateSummary} disabled={isLoading || !videoUrl} className="w-full sm:w-auto">
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {isLoading ? 'Generating...' : 'Generate Summary'}
+        {isLoading ? 'Generating Summary...' : 'Generate Video Summary (AI)'}
         {!isLoading && <Sparkles className="ml-2 h-4 w-4" />}
       </Button>
+      { !videoUrl &&  
+        <Alert variant="destructive">
+            <FileWarning className="h-4 w-4" />
+            <AlertTitle>Missing Video URL</AlertTitle>
+            <AlertDescription>Cannot generate summary as the video URL is not available.</AlertDescription>
+        </Alert>
+      }
+      <p className="text-sm text-muted-foreground">
+          AI will attempt to summarize the video directly from its URL. This may take a few moments. 
+          Ensure the video URL is publicly accessible.
+      </p>
 
       {error && (
         <Alert variant="destructive">
           <FileWarning className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Error Generating Summary</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -104,7 +82,7 @@ export function VideoSummaryArea({ videoUrl, courseId, lessonId }: VideoSummaryA
           <CardHeader>
             <CardTitle className="text-lg flex items-center text-primary">
               <Sparkles className="mr-2 h-5 w-5 text-accent" />
-              Video Summary
+              AI Video Summary
             </CardTitle>
           </CardHeader>
           <CardContent>

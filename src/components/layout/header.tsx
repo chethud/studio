@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { LearnifyLogo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, PlusCircle } from 'lucide-react';
 
 export function Header() {
   return (
@@ -11,14 +11,19 @@ export function Header() {
           <LearnifyLogo />
           <span>Learnify</span>
         </Link>
-        <nav>
+        <nav className="flex items-center gap-2">
           <Button variant="ghost" asChild>
             <Link href="/">
               <BookOpen className="mr-2 h-4 w-4" />
               Courses
             </Link>
           </Button>
-          {/* Add other navigation links here if needed */}
+          <Button variant="ghost" asChild>
+            <Link href="/admin/add-course">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Course
+            </Link>
+          </Button>
         </nav>
       </div>
     </header>

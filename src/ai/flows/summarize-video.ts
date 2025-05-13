@@ -12,10 +12,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SummarizeVideoInputSchema = z.object({
-  videoDataUri: z
+  videoUrl: z
     .string()
+    .url()
     .describe(
-      'The video file, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' /* Suppress newline */
+      'The publicly accessible URL of the video file (e.g., a GCS link).' 
     ),
 });
 export type SummarizeVideoInput = z.infer<typeof SummarizeVideoInputSchema>;
@@ -33,11 +34,11 @@ const prompt = ai.definePrompt({
   name: 'summarizeVideoPrompt',
   input: {schema: SummarizeVideoInputSchema},
   output: {schema: SummarizeVideoOutputSchema},
-  prompt: `You are an expert summarizer of video content.  You will watch the video provided, and provide a summary of the contents. Use the following as the primary source of information about the video.
+  prompt: `You are an expert summarizer of video content. You will watch the video provided via the URL and provide a summary of its contents.
 
-Video: {{media url=videoDataUri}}
+Video: {{media url=videoUrl}}
 
-Summary:`, /* Suppress newline */
+Summary:`,
 });
 
 const summarizeVideoFlow = ai.defineFlow(
@@ -51,3 +52,4 @@ const summarizeVideoFlow = ai.defineFlow(
     return output!;
   }
 );
+

@@ -15,7 +15,8 @@ export interface Course {
   lessons: Lesson[];
 }
 
-export const COURSES: Course[] = [
+// Changed from const to let to allow modification
+export let COURSES: Course[] = [
   {
     id: 'nextjs-fundamentals',
     title: 'Next.js 14 Fundamentals',
@@ -62,4 +63,19 @@ export function getCourseById(courseId: string): Course | undefined {
 export function getLessonById(courseId: string, lessonId: string): Lesson | undefined {
   const course = getCourseById(courseId);
   return course?.lessons.find(lesson => lesson.id === lessonId);
+}
+
+export function addCourse(newCourse: Course): void {
+  // In a real application, this would interact with a database or API.
+  // For this demo, we're modifying an in-memory array.
+  // This won't persist across server restarts or in a serverless environment.
+  const existingCourse = COURSES.find(course => course.id === newCourse.id);
+  if (existingCourse) {
+    // Optionally update existing course or throw error
+    console.warn(`Course with ID ${newCourse.id} already exists. Updating it.`);
+    COURSES = COURSES.map(course => course.id === newCourse.id ? newCourse : course);
+  } else {
+    COURSES.push(newCourse);
+  }
+  console.log('Current courses:', COURSES);
 }
