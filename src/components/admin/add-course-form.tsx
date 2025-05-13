@@ -1,17 +1,16 @@
+
 "use client";
 
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CourseFormSchema, type CourseFormValues, type LessonFormValues } from "@/schemas/course-form-schema";
-import { addCourse, type Course, type Lesson } from "@/lib/data"; // Ensure Lesson type is imported
+import { addCourse, type Course, type Lesson } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { PlusCircle, Trash2, Save, Loader2 } from "lucide-react"; // Added Loader2
+import { PlusCircle, Trash2, Save, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
@@ -42,7 +41,7 @@ export function AddCourseForm() {
     try {
       const newCourse: Course = {
         ...data,
-        lessons: data.lessons.map(lesson => ({...lesson} as Lesson)) // Ensure type compatibility
+        lessons: data.lessons.map(lesson => ({...lesson} as Lesson)) 
       };
       addCourse(newCourse);
       toast({
@@ -51,7 +50,10 @@ export function AddCourseForm() {
         variant: "default",
       });
       form.reset();
-      router.push("/"); // Redirect to homepage or courses page
+      router.refresh(); // Re-fetch server-side data for current route
+      // Optionally, redirect to a page where the new course is visible, e.g., admin dashboard or course list
+      // For now, let's assume the admin stays on this page or navigates manually.
+      // If redirecting to user's course list: router.push("/");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -234,7 +236,7 @@ export function AddCourseForm() {
               type="button"
               variant="outline"
               onClick={() => append({ 
-                  id: `L${fields.length + 1}-${Date.now().toString().slice(-3)}`, // Auto-generate a somewhat unique ID
+                  id: `L${fields.length + 1}-${Date.now().toString().slice(-3)}`, 
                   title: "", 
                   duration: "00:00", 
                   videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", 
