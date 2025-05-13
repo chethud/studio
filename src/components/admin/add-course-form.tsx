@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { PlusCircle, Trash2, Save } from "lucide-react";
+import { PlusCircle, Trash2, Save, Loader2 } from "lucide-react"; // Added Loader2
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
