@@ -3,8 +3,7 @@
 
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CourseFormSchema, type CourseFormValues, type LessonFormValues } from "@/schemas/course-form-schema";
-import { addCourse, type Course, type Lesson } from "@/lib/data";
+import { CourseFormSchema, type CourseFormValues } from "@/schemas/course-form-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { PlusCircle, Trash2, Save, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { addNewCourseAction } from '@/app/admin/add-course/actions';
 
 export function AddCourseForm() {
   const { toast } = useToast();
@@ -37,37 +37,47 @@ export function AddCourseForm() {
     name: "lessons",
   });
 
-  const onSubmit = (data: CourseFormValues) => {
+  const onSubmit = async (data: CourseFormValues) => {
+    form.formState.isSubmitting = true; // Manually set submitting state
     try {
-      const newCourse: Course = {
-        ...data,
-        lessons: data.lessons.map(lesson => ({...lesson} as Lesson)) 
-      };
-      addCourse(newCourse);
-      toast({
-        title: "Course Added",
-        description: `Course "${data.title}" has been successfully added.`,
-        variant: "default",
-      });
-      form.reset(); // Reset form to default values after successful submission
-       // Re-initialize with a new default lesson structure if desired, or clear specific fields
-      form.reset({
-        id: "",
-        title: "",
-        description: "",
-        longDescription: "",
-        thumbnailUrl: `https://picsum.photos/seed/placeholder${Math.random()}/600/400`, // new placeholder
-        lessons: [
-          { id: `L${Date.now().toString().slice(-4)}`, title: "", duration: "00:00", videoUrl: "https://www.youtube.com/watch?v=LXb3EKWsInQ", description: "" },
-        ],
-      });
-      router.refresh(); 
+      const result = await addNewCourseAction(data);
+
+      if (result.success) {
+        toast({
+          title: "Course Added",
+          description: `Course "${data.title}" has been successfully added.`,
+          variant: "default",
+        });
+        form.reset({
+          id: "",
+          title: "",
+          description: "",
+          longDescription: "",
+          thumbnailUrl: `https://picsum.photos/seed/placeholder${Math.random()}/600/400`,
+          lessons: [
+            { id: `L${Date.now().toString().slice(-4)}`, title: "", duration: "00:00", videoUrl: "https://www.youtube.com/watch?v=LXb3EKWsInQ", description: "" },
+          ],
+        });
+        // router.refresh() is not strictly necessary here if revalidatePath is used in server action,
+        // but can be kept for good measure or if direct navigation changes are needed.
+        // For this use case, revalidatePath in the action is preferred.
+      } else {
+        toast({
+          title: "Error Adding Course",
+          description: result.error || "Failed to add course.",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to add course.",
+        title: "Submission Error",
+        description: error.message || "An unexpected error occurred while submitting the form.",
         variant: "destructive",
       });
+    } finally {
+       form.formState.isSubmitting = false; // Manually reset submitting state
+       // Trigger a re-render if using react-hook-form's own isSubmitting state isn't enough
+       form.trigger(); 
     }
   };
 
@@ -247,7 +257,7 @@ export function AddCourseForm() {
                   id: `L${fields.length + 1}-${Date.now().toString().slice(-3)}`, 
                   title: "", 
                   duration: "00:00", 
-                  videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // Example YouTube link 
+                  videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", 
                   description: "" 
               })}
             >
