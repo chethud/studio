@@ -58,14 +58,10 @@ export let COURSES: Course[] = [
 
 export function getCourses(): Course[] {
   // Return a deep copy of the current state of COURSES.
-  // This ensures that consumers always get the most up-to-date data
-  // and prevents them from unintentionally mutating the global COURSES array.
   return JSON.parse(JSON.stringify(COURSES));
 }
 
 export function getCourseById(courseId: string): Course | undefined {
-  // It's slightly more robust to use getCourses() here too,
-  // but direct access is fine if COURSES is consistently updated.
   const currentCourses = getCourses();
   return currentCourses.find(course => course.id === courseId);
 }
@@ -77,18 +73,22 @@ export function getLessonById(courseId: string, lessonId: string): Lesson | unde
 
 export function addCourse(newCourseData: Course): void {
   const existingCourseIndex = COURSES.findIndex(course => course.id === newCourseData.id);
+  let updatedCourses: Course[];
 
   if (existingCourseIndex !== -1) {
     // Update existing course
     console.warn(`Server Lib (data.ts): Course with ID ${newCourseData.id} already exists. Updating it.`);
-    COURSES[existingCourseIndex] = newCourseData;
+    updatedCourses = COURSES.map(course =>
+      course.id === newCourseData.id ? newCourseData : course
+    );
   } else {
     // Add new course
     console.log(`Server Lib (data.ts): Adding new course with ID ${newCourseData.id}.`);
-    COURSES.push(newCourseData);
+    updatedCourses = [...COURSES, newCourseData];
   }
   
+  COURSES = updatedCourses; // Reassign the module-level variable
+
   console.log(`Server Lib (data.ts): COURSES count after operation: ${COURSES.length}`);
-  // To see the actual list of course IDs after operation:
   console.log('Server Lib (data.ts): Current course IDs:', COURSES.map(c => c.id));
 }
