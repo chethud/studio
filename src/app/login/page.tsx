@@ -103,15 +103,9 @@ export default function LoginPage() {
               {isSubmitting ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
-          <CardDescription className="mt-6 text-center text-sm">
-            Demo Credentials:
-            <br />
-            Admin: admin@admin.com / admin123
-            <br />
-            User: user@user.com / user123
-          </CardDescription>
         </CardContent>
       </Card>
     </div>
   );
 }
+

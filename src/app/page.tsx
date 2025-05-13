@@ -10,30 +10,25 @@ import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export default function HomePage() {
-  const { user, isLoading, isAuthenticated, isUser, isAdmin } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth(); // Removed user, isUser, isAdmin as direct dependencies for this effect/check
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!isAuthenticated) {
-        router.replace('/login');
-      } else if (isAdmin) {
-        // Admins should not land on user dashboard, redirect them to their area
-        router.replace('/admin/add-course'); // Or /admin if an admin dashboard page exists
-      } else if (!isUser) {
-        // If authenticated but not a user (e.g. future roles) or some error state
-        router.replace('/login');
-      }
+    if (!isLoading && !isAuthenticated) {
+      // If not loading and not authenticated, redirect to login
+      router.replace('/login');
     }
-  }, [user, isLoading, isAuthenticated, isUser, isAdmin, router]);
+    // Admins are no longer redirected away from this page.
+    // Users are also allowed.
+  }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading || !isAuthenticated || !isUser) {
-    // Show loading spinner if auth is loading, or if user is not authenticated or not a 'user'
-    // This also covers the case where an admin might briefly hit this page before redirection
+  if (isLoading || !isAuthenticated) {
+    // Show loading spinner if auth is loading, or if user is not authenticated.
+    // This applies to both admins and regular users before they are confirmed as authenticated.
     return (
       <div className="flex flex-col justify-center items-center min-h-[calc(100vh-theme(space.16))]"> {/* Adjust height considering header */}
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-         <p className="mt-4 text-lg text-muted-foreground">Loading your courses...</p>
+         <p className="mt-4 text-lg text-muted-foreground">Loading courses...</p>
       </div>
     );
   }
@@ -52,3 +47,4 @@ export default function HomePage() {
     </div>
   );
 }
+
