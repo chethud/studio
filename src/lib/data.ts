@@ -24,7 +24,7 @@ export let COURSES: Course[] = [
     longDescription: 'Dive deep into Next.js 14, learning about App Router, Server Components, Server Actions, and more. This course covers everything from setting up your first project to deploying a full-stack application. Perfect for beginners and those looking to update their Next.js skills.',
     thumbnailUrl: 'https://picsum.photos/seed/nextjs/600/400',
     lessons: [
-      { id: 'L101', title: 'Introduction to Next.js', duration: '08:15', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', description: 'Overview of Next.js, its features, and why it\'s a popular choice for web development.' },
+      { id: 'L101', title: 'Introduction to Next.js', duration: '08:15', videoUrl: 'https://www.youtube.com/watch?v=fmj9S3M9MWQ', description: 'Overview of Next.js, its features, and why it\'s a popular choice for web development.' },
       { id: 'L102', title: 'Setting Up Your Project', duration: '12:30', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', description: 'Step-by-step guide to creating a new Next.js project and understanding the file structure.' },
       { id: 'L103', title: 'App Router and Routing', duration: '15:50', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', description: 'Learn how to define routes, create layouts, and handle navigation using the App Router.' },
       { id: 'L104', title: 'Server Components', duration: '18:22', videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', description: 'Understand the power of Server Components for improved performance and data fetching.' },

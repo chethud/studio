@@ -27,7 +27,7 @@ export function AddCourseForm() {
       longDescription: "",
       thumbnailUrl: "https://picsum.photos/seed/placeholder/600/400",
       lessons: [
-        { id: "L1", title: "", duration: "00:00", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", description: "" },
+        { id: "L1", title: "", duration: "00:00", videoUrl: "https://www.youtube.com/watch?v=LXb3EKWsInQ", description: "" },
       ],
     },
   });
@@ -49,11 +49,19 @@ export function AddCourseForm() {
         description: `Course "${data.title}" has been successfully added.`,
         variant: "default",
       });
-      form.reset();
-      router.refresh(); // Re-fetch server-side data for current route
-      // Optionally, redirect to a page where the new course is visible, e.g., admin dashboard or course list
-      // For now, let's assume the admin stays on this page or navigates manually.
-      // If redirecting to user's course list: router.push("/");
+      form.reset(); // Reset form to default values after successful submission
+       // Re-initialize with a new default lesson structure if desired, or clear specific fields
+      form.reset({
+        id: "",
+        title: "",
+        description: "",
+        longDescription: "",
+        thumbnailUrl: `https://picsum.photos/seed/placeholder${Math.random()}/600/400`, // new placeholder
+        lessons: [
+          { id: `L${Date.now().toString().slice(-4)}`, title: "", duration: "00:00", videoUrl: "https://www.youtube.com/watch?v=LXb3EKWsInQ", description: "" },
+        ],
+      });
+      router.refresh(); 
     } catch (error: any) {
       toast({
         title: "Error",
@@ -198,7 +206,7 @@ export function AddCourseForm() {
                     <FormItem>
                       <FormLabel>Video URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., https://example.com/video.mp4" {...lessonField} />
+                        <Input placeholder="e.g., https://www.youtube.com/watch?v=your_video_id or https://example.com/video.mp4" {...lessonField} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -239,7 +247,7 @@ export function AddCourseForm() {
                   id: `L${fields.length + 1}-${Date.now().toString().slice(-3)}`, 
                   title: "", 
                   duration: "00:00", 
-                  videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", 
+                  videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // Example YouTube link 
                   description: "" 
               })}
             >
