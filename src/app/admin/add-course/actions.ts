@@ -1,14 +1,12 @@
 
 'use server';
 
-import { COURSES, type Course, type Lesson } from '@/lib/data';
+import { addCourse as addOrUpdateCourseInLib, type Course, type Lesson } from '@/lib/data';
 import type { CourseFormValues } from '@/schemas/course-form-schema';
 import { revalidatePath } from 'next/cache';
 
 export async function addNewCourseAction(data: CourseFormValues): Promise<{success: boolean, error?: string, courseId?: string}> {
   try {
-    const existingCourse = COURSES.find(course => course.id === data.id);
-    
     const newCourseData: Course = {
       id: data.id,
       title: data.title,
@@ -24,21 +22,19 @@ export async function addNewCourseAction(data: CourseFormValues): Promise<{succe
       } as Lesson)),
     };
 
-    if (existingCourse) {
-      console.warn(`Server Action: Course with ID ${data.id} already exists. Updating it.`);
-      COURSES = COURSES.map(course => course.id === data.id ? newCourseData : course);
-    } else {
-      COURSES.push(newCourseData);
-    }
+    // Call the function from lib/data.ts to add or update the course
+    // This function will handle whether it's an add or update operation.
+    addOrUpdateCourseInLib(newCourseData);
     
-    console.log('Server Action: Course added/updated. Server COURSES count:', COURSES.length);
-    COURSES.forEach(c => console.log(`Server Course ID: ${c.id}`));
-
-
+    console.log(`Server Action: Course ${data.id} processed by addOrUpdateCourseInLib in @/lib/data.`);
+    
     // Revalidate paths to ensure UI updates
-    revalidatePath('/'); // For the home page listing
+    revalidatePath('/'); // For the home page listing (src/app/page.tsx)
     revalidatePath(`/courses/${data.id}`); // For the specific course page
-    revalidatePath('/courses', 'layout'); // Revalidate all course pages under /courses
+    revalidatePath('/courses'); // For any general course listing page if it exists
+    revalidatePath('/courses', 'layout'); // Revalidate layout for course pages
+    revalidatePath('/admin/add-course'); // Potentially revalidate admin page if it shows courses
+
 
     return { success: true, courseId: newCourseData.id };
   } catch (error: any) {
@@ -46,3 +42,4 @@ export async function addNewCourseAction(data: CourseFormValues): Promise<{succe
     return { success: false, error: error.message || "Failed to add course on server." };
   }
 }
+

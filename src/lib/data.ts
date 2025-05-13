@@ -65,17 +65,21 @@ export function getLessonById(courseId: string, lessonId: string): Lesson | unde
   return course?.lessons.find(lesson => lesson.id === lessonId);
 }
 
-export function addCourse(newCourse: Course): void {
-  // In a real application, this would interact with a database or API.
-  // For this demo, we're modifying an in-memory array.
-  // This won't persist across server restarts or in a serverless environment.
-  const existingCourse = COURSES.find(course => course.id === newCourse.id);
-  if (existingCourse) {
-    // Optionally update existing course or throw error
-    console.warn(`Course with ID ${newCourse.id} already exists. Updating it.`);
-    COURSES = COURSES.map(course => course.id === newCourse.id ? newCourse : course);
+export function addCourse(newCourseData: Course): void {
+  const existingCourseIndex = COURSES.findIndex(course => course.id === newCourseData.id);
+
+  if (existingCourseIndex !== -1) {
+    // Update existing course
+    console.warn(`Server Lib (data.ts): Course with ID ${newCourseData.id} already exists. Updating it.`);
+    COURSES[existingCourseIndex] = newCourseData;
   } else {
-    COURSES.push(newCourse);
+    // Add new course
+    console.log(`Server Lib (data.ts): Adding new course with ID ${newCourseData.id}.`);
+    COURSES.push(newCourseData);
   }
-  console.log('Current courses:', COURSES);
+  
+  console.log(`Server Lib (data.ts): COURSES count after operation: ${COURSES.length}`);
+  // To see the actual list of course IDs after operation:
+  // console.log('Server Lib (data.ts): Current course IDs:', COURSES.map(c => c.id));
 }
+
